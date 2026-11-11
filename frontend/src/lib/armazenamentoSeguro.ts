@@ -1,12 +1,8 @@
 import * as SecureStore from 'expo-secure-store';
 
-/**
- * Adaptador de armazenamento para a sessão do Supabase.
- *
- * Guarda os dados no cofre do sistema (Keystore no Android), que é criptografado.
- * O SecureStore limita cada valor a ~2 KB e a sessão do Supabase costuma passar disso,
- * então o texto é dividido em pedaços ("chunks") e remontado na leitura.
- */
+// Guarda a sessão do Supabase no cofre do aparelho. O SecureStore limita cada valor
+// a ~2 KB e a sessão costuma passar disso, então o texto é dividido em pedaços.
+
 const TAMANHO_PEDACO = 1800;
 
 const chaveQtd = (chave: string) => `${chave}.qtd`;
@@ -20,14 +16,14 @@ export const armazenamentoSeguro = {
     const pedacos: string[] = [];
     for (let i = 0; i < Number(qtdTexto); i++) {
       const pedaco = await SecureStore.getItemAsync(chavePedaco(chave, i));
-      if (pedaco === null) return null; // dado corrompido: trata como sem sessão
+      if (pedaco === null) return null;
       pedacos.push(pedaco);
     }
     return pedacos.join('');
   },
 
   async setItem(chave: string, valor: string): Promise<void> {
-    await this.removeItem(chave); // evita sobrar pedaços antigos
+    await this.removeItem(chave);
     const total = Math.ceil(valor.length / TAMANHO_PEDACO);
     for (let i = 0; i < total; i++) {
       await SecureStore.setItemAsync(

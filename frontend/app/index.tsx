@@ -1,17 +1,33 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Redirect } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { cores, tipografia } from '../src/theme/tokens';
+import { supabase } from '../src/lib/supabase';
+import { cores } from '../src/theme/tokens';
 
-/** Tela provisória; será substituída pelo fluxo de autenticação (UC01/UC02). */
 export default function Inicio() {
-  return (
-    <View style={estilos.container}>
-      <Text style={estilos.titulo}>TrainPRO</Text>
-    </View>
-  );
+  const [logado, setLogado] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setLogado(!!data.session));
+  }, []);
+
+  if (logado === null) {
+    return (
+      <View style={estilos.carregando}>
+        <ActivityIndicator size="large" color={cores.primaria} />
+      </View>
+    );
+  }
+
+  return <Redirect href={logado ? '/inicio' : '/cadastro'} />;
 }
 
 const estilos = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  titulo: { ...tipografia.titulo, color: cores.primaria },
+  carregando: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: cores.fundo,
+  },
 });

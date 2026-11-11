@@ -1,20 +1,15 @@
-/**
- * Tokens de design do TrainPRO: tema escuro com destaque rosa/salmão.
- * Toda cor, espaçamento e tamanho de texto do app deve vir daqui,
- * para manter a identidade visual consistente.
- */
 export const cores = {
   fundo: '#0F0D11',
   superficie: '#1A171D',
   superficieElevada: '#251F28',
   borda: '#352D39',
 
-  primaria: '#FF8A80', // salmão (destaque principal)
+  primaria: '#FF8A80',
   primariaPressionada: '#F26B63',
-  sobrePrimaria: '#1A0B0A', // texto sobre fundo salmão (contraste AA)
+  sobrePrimaria: '#1A0B0A',
 
   texto: '#F5F1F6',
-  textoSecundario: '#B5ABBA', // contraste ≥ 4.5:1 sobre o fundo
+  textoSecundario: '#B5ABBA',
   textoDesabilitado: '#6E6475',
 
   sucesso: '#6FD6A0',
@@ -22,7 +17,6 @@ export const cores = {
   erro: '#FF6B7A',
 } as const;
 
-/** Escala de espaçamento (múltiplos de 4). */
 export const espacamento = {
   xs: 4,
   sm: 8,
@@ -41,5 +35,5 @@ export const tipografia = {
   legenda: { fontSize: 13, fontWeight: '400' as const, lineHeight: 18 },
 } as const;
 
-/** Alvo mínimo de toque recomendado no Android (48dp). */
+// Alvo de toque mínimo recomendado no Android (48dp).
 export const alvoToqueMinimo = 48;

@@ -1,13 +1,8 @@
-/**
- * Variáveis de ambiente do app.
- * O Expo só expõe ao código as variáveis que começam com EXPO_PUBLIC_,
- * por isso aqui só entram valores que podem ser públicos (URL e chave publicável).
- * Falha cedo com uma mensagem clara se algo estiver faltando.
- */
+// Só variáveis EXPO_PUBLIC_ chegam ao app. Falha cedo se alguma estiver ausente.
 function lerVariavel(nome: string, valor: string | undefined): string {
   if (!valor) {
     throw new Error(
-      `Variável de ambiente ausente: ${nome}. Crie o arquivo .env com base no .env.example.`,
+      `Variável de ambiente ausente: ${nome}. Defina-a no arquivo .env.`,
     );
   }
   return valor;
