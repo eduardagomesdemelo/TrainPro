@@ -1,3 +1,5 @@
+import { Ionicons } from '@expo/vector-icons';
+import { ComponentProps } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { alvoToqueMinimo, cores, raio, tipografia } from '../theme/tokens';
@@ -8,6 +10,9 @@ type Props = {
   variante?: 'primario' | 'secundario' | 'texto';
   carregando?: boolean;
   desabilitado?: boolean;
+  icone?: ComponentProps<typeof Ionicons>['name'];
+  // Mostra só o ícone; o título continua sendo lido por leitores de tela.
+  apenasIcone?: boolean;
 };
 
 export function Botao({
@@ -16,6 +21,8 @@ export function Botao({
   variante = 'primario',
   carregando = false,
   desabilitado = false,
+  icone,
+  apenasIcone = false,
 }: Props) {
   const inativo = desabilitado || carregando;
   const corTexto = variante === 'primario' ? cores.sobrePrimaria : cores.primaria;
@@ -38,7 +45,10 @@ export function Botao({
       {carregando ? (
         <ActivityIndicator color={corTexto} />
       ) : (
-        <Text style={[estilos.rotulo, { color: corTexto }]}>{titulo}</Text>
+        <>
+          {icone && <Ionicons name={icone} size={apenasIcone ? 26 : 20} color={corTexto} />}
+          {!apenasIcone && <Text style={[estilos.rotulo, { color: corTexto }]}>{titulo}</Text>}
+        </>
       )}
     </Pressable>
   );
@@ -47,6 +57,8 @@ export function Botao({
 const estilos = StyleSheet.create({
   base: {
     minHeight: alvoToqueMinimo + 4,
+    flexDirection: 'row',
+    gap: 8,
     borderRadius: raio.md,
     paddingHorizontal: 20,
     alignItems: 'center',

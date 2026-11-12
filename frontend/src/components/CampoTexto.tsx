@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { ComponentRef, Ref, useState } from 'react';
+import { ComponentProps, ComponentRef, Ref, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
 
 import { alvoToqueMinimo, cores, espacamento, raio, tipografia } from '../theme/tokens';
@@ -11,10 +11,11 @@ type Props = Omit<TextInputProps, 'style'> & {
   erro?: string | null;
   dica?: string;
   senha?: boolean;
+  icone?: ComponentProps<typeof Ionicons>['name'];
   ref?: Ref<CampoRef>;
 };
 
-export function CampoTexto({ rotulo, erro, dica, senha = false, ref, ...resto }: Props) {
+export function CampoTexto({ rotulo, erro, dica, senha = false, icone, ref, ...resto }: Props) {
   const [focado, setFocado] = useState(false);
   const [visivel, setVisivel] = useState(false);
 
@@ -23,6 +24,14 @@ export function CampoTexto({ rotulo, erro, dica, senha = false, ref, ...resto }:
       <Text style={estilos.rotulo}>{rotulo}</Text>
 
       <View style={[estilos.caixa, focado && estilos.focado, !!erro && estilos.comErro]}>
+        {icone && (
+          <Ionicons
+            name={icone}
+            size={20}
+            color={focado ? cores.primaria : cores.textoSecundario}
+            style={estilos.iconeInicio}
+          />
+        )}
         <TextInput
           ref={ref}
           {...resto}
@@ -83,6 +92,7 @@ const estilos = StyleSheet.create({
   },
   focado: { borderColor: cores.primaria },
   comErro: { borderColor: cores.erro },
+  iconeInicio: { marginRight: espacamento.md },
   input: { flex: 1, ...tipografia.corpo, color: cores.texto, paddingVertical: espacamento.md },
   olho: { paddingLeft: espacamento.md },
   erro: { ...tipografia.legenda, color: cores.erro },

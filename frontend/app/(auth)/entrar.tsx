@@ -1,11 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Botao } from '../../src/components/Botao';
 import { CampoRef, CampoTexto } from '../../src/components/CampoTexto';
-import { OpcoesSociais } from '../../src/components/OpcoesSociais';
 import { Logo } from '../../src/components/Logo';
+import { OpcoesSociais } from '../../src/components/OpcoesSociais';
 import { TelaAuth } from '../../src/components/TelaAuth';
 import { entrarComEmail } from '../../src/features/auth/servicoAutenticacao';
 import { validarEmail } from '../../src/features/auth/validacao';
@@ -48,18 +49,24 @@ export default function Entrar() {
 
   return (
     <TelaAuth>
-      <Logo />
-      <Text style={estilos.titulo}>Entre na sua conta</Text>
+      <View style={estilos.logo}>
+        <Logo largura={220} />
+      </View>
+
+      <Text style={estilos.titulo}>Bem-vindo de volta</Text>
+      <Text style={estilos.subtitulo}>Entre para continuar seus treinos.</Text>
 
       {confirmado === '1' && (
         <View style={estilos.aviso} accessibilityLiveRegion="polite">
-          <Text style={estilos.avisoTexto}>E-mail confirmado! Agora você já pode fazer login.</Text>
+          <Ionicons name="checkmark-circle" size={22} color={cores.sucesso} />
+          <Text style={estilos.avisoTexto}>E-mail confirmado! Agora você já pode entrar.</Text>
         </View>
       )}
 
       <View style={estilos.formulario}>
         <CampoTexto
           rotulo="E-mail"
+          icone="mail-outline"
           value={email}
           onChangeText={setEmail}
           erro={erroEmail}
@@ -75,6 +82,7 @@ export default function Entrar() {
         <CampoTexto
           ref={refSenha}
           rotulo="Senha"
+          icone="lock-closed-outline"
           senha
           value={senha}
           onChangeText={setSenha}
@@ -95,7 +103,13 @@ export default function Entrar() {
       )}
 
       <View style={estilos.botao}>
-        <Botao titulo="Entrar" aoPressionar={aoEntrar} carregando={enviando} />
+        <Botao
+          titulo="Entrar"
+          icone="arrow-forward"
+          apenasIcone
+          aoPressionar={aoEntrar}
+          carregando={enviando}
+        />
       </View>
 
       <OpcoesSociais acao="Entrar" />
@@ -111,8 +125,13 @@ export default function Entrar() {
 }
 
 const estilos = StyleSheet.create({
-  titulo: { ...tipografia.titulo, color: cores.texto, marginTop: espacamento.xl },
+  logo: { marginBottom: espacamento.xl },
+  titulo: { ...tipografia.titulo, color: cores.texto },
+  subtitulo: { ...tipografia.corpo, color: cores.textoSecundario, marginTop: espacamento.xs },
   aviso: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: espacamento.md,
     marginTop: espacamento.lg,
     padding: espacamento.lg,
     borderRadius: raio.md,
@@ -120,7 +139,7 @@ const estilos = StyleSheet.create({
     borderWidth: 1,
     borderColor: cores.sucesso,
   },
-  avisoTexto: { ...tipografia.corpo, color: cores.sucesso },
+  avisoTexto: { ...tipografia.corpo, color: cores.sucesso, flex: 1 },
   formulario: { gap: espacamento.lg, marginTop: espacamento.xl },
   erroGeral: { ...tipografia.corpo, color: cores.erro, marginTop: espacamento.lg },
   botao: { marginTop: espacamento.xl },
