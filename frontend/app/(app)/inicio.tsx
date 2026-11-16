@@ -130,12 +130,28 @@ export default function Inicio() {
       )}
 
       <View style={estilos.rodape}>
-        <BotaoIcone
-          icone="add"
-          descricao="Novo treino"
-          variante="destaque"
-          aoPressionar={() => router.push('/novo-treino')}
-        />
+        <View style={estilos.coluna}>
+          <BotaoIcone
+            icone="time-outline"
+            descricao="Histórico de treinos"
+            aoPressionar={() => router.push('/historico')}
+          />
+        </View>
+        <View style={estilos.coluna}>
+          <BotaoIcone
+            icone="add"
+            descricao="Novo treino"
+            variante="destaque"
+            aoPressionar={() => router.push('/novo-treino')}
+          />
+        </View>
+        <View style={estilos.coluna}>
+          <BotaoIcone
+            icone="locate-outline"
+            descricao="Minhas metas"
+            aoPressionar={() => router.push('/metas')}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -181,10 +197,12 @@ const estilos = StyleSheet.create({
   nomeTreino: { ...tipografia.corpo, color: cores.texto, fontWeight: '700' },
   tipo: { ...tipografia.legenda, color: cores.textoSecundario },
   rodape: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: espacamento.lg,
+    paddingVertical: espacamento.md,
     borderTopWidth: 1,
     borderTopColor: cores.borda,
     backgroundColor: cores.fundo,
   },
+  coluna: { flex: 1, alignItems: 'center' },
 });

@@ -27,7 +27,7 @@ export function BotaoIcone({ icone, descricao, aoPressionar, variante = 'sutil' 
     >
       <Ionicons
         name={icone}
-        size={destaque ? 32 : 24}
+        size={destaque ? 28 : 26}
         color={destaque ? cores.sobrePrimaria : cores.textoSecundario}
       />
     </Pressable>
@@ -44,8 +44,8 @@ const estilos = StyleSheet.create({
     overflow: 'hidden',
   },
   destaque: {
-    width: 64,
-    height: 64,
+    width: 52,
+    height: 52,
     backgroundColor: cores.primaria,
   },
 });

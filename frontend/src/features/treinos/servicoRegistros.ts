@@ -71,3 +71,19 @@ export async function listarRegistrosDeHoje(sessaoId: string): Promise<Resultado
   if (error) return falha(error, 'Não foi possível carregar os registros de hoje.');
   return { ok: true, dados: (data as LinhaRegistro[]).map(paraRegistro) };
 }
+
+// Altera só a carga e as repetições; o banco recusa série de outro usuário.
+export async function editarSerie(dados: {
+  serieId: string;
+  carga: number;
+  repeticoes: number;
+}): Promise<Resultado<RegistroSerie>> {
+  const { data, error } = await supabase.rpc('editar_serie', {
+    p_id: dados.serieId,
+    p_carga: dados.carga,
+    p_repeticoes: dados.repeticoes,
+  });
+
+  if (error) return falha(error, 'Não foi possível salvar a alteração. Tente novamente.');
+  return { ok: true, dados: paraRegistro(data as LinhaRegistro) };
+}

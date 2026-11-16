@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Botao } from '../../components/Botao';
 import { CampoRef, CampoTexto } from '../../components/CampoTexto';
+import { formatarCarga } from '../../lib/formatacao';
 import { cores, espacamento, raio, tipografia } from '../../theme/tokens';
 import { converterCarga, validarCarga, validarRepeticoes } from './servicoRegistros';
 import { Exercicio, RegistroSerie } from './tipos';
@@ -16,10 +17,6 @@ type Props = {
   // Retorna a mensagem de erro, ou null quando a série foi registrada.
   aoRegistrar: (carga: number, repeticoes: number) => Promise<string | null>;
 };
-
-function formatarCarga(carga: number): string {
-  return String(carga).replace('.', ',');
-}
 
 export function ItemExercicio({ exercicio, series, aberto, aoAlternar, aoRegistrar }: Props) {
   const [carga, setCarga] = useState('');

@@ -1,6 +1,13 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ComponentRef, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Cabecalho } from '../../../src/components/Cabecalho';
@@ -20,8 +27,35 @@ export default function Sessao() {
   const [exercicios, setExercicios] = useState<Exercicio[]>([]);
   const [registros, setRegistros] = useState<RegistroSerie[]>([]);
   const [abertoId, setAbertoId] = useState<string | null>(null);
+  const [alturaVisivel, setAlturaVisivel] = useState(0);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+
+  const rolagem = useRef<ComponentRef<typeof ScrollView>>(null);
+  const posicoes = useRef<Record<string, number>>({});
+
+  // Leva o exercício aberto para o topo da área visível, longe do teclado.
+  const rolarPara = useCallback((exercicioId: string) => {
+    const y = posicoes.current[exercicioId];
+    if (y !== undefined) {
+      rolagem.current?.scrollTo({ y: Math.max(y - espacamento.md, 0), animated: true });
+    }
+  }, []);
+
+  // Quando o teclado termina de abrir, o espaço visível muda; reposiciona o exercício aberto.
+  useEffect(() => {
+    const assinatura = Keyboard.addListener('keyboardDidShow', () => {
+      if (abertoId) rolarPara(abertoId);
+    });
+    return () => assinatura.remove();
+  }, [abertoId, rolarPara]);
+
+  function alternarExercicio(exercicioId: string) {
+    const abrir = abertoId !== exercicioId;
+    setAbertoId(abrir ? exercicioId : null);
+    // Espera o cartão expandir antes de rolar.
+    if (abrir) setTimeout(() => rolarPara(exercicioId), 80);
+  }
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -75,22 +109,36 @@ export default function Sessao() {
           descricao="Esta sessão ainda não tem exercícios."
         />
       ) : (
-        <ScrollView
-          contentContainerStyle={estilos.lista}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {exercicios.map((exercicio) => (
-            <ItemExercicio
-              key={exercicio.id}
-              exercicio={exercicio}
-              series={registros.filter((r) => r.exercicioId === exercicio.id)}
-              aberto={abertoId === exercicio.id}
-              aoAlternar={() => setAbertoId(abertoId === exercicio.id ? null : exercicio.id)}
-              aoRegistrar={(carga, repeticoes) => aoRegistrar(exercicio.id, carga, repeticoes)}
-            />
-          ))}
-        </ScrollView>
+        <KeyboardAvoidingView style={estilos.tela} behavior="padding">
+          <ScrollView
+            ref={rolagem}
+            onLayout={(e) => setAlturaVisivel(e.nativeEvent.layout.height)}
+            contentContainerStyle={[
+              estilos.lista,
+              // Com um exercício aberto, o espaço extra permite rolá-lo até o topo mesmo sendo o último.
+              abertoId !== null && { paddingBottom: alturaVisivel },
+            ]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {exercicios.map((exercicio) => (
+              <View
+                key={exercicio.id}
+                onLayout={(e) => {
+                  posicoes.current[exercicio.id] = e.nativeEvent.layout.y;
+                }}
+              >
+                <ItemExercicio
+                  exercicio={exercicio}
+                  series={registros.filter((r) => r.exercicioId === exercicio.id)}
+                  aberto={abertoId === exercicio.id}
+                  aoAlternar={() => alternarExercicio(exercicio.id)}
+                  aoRegistrar={(carga, repeticoes) => aoRegistrar(exercicio.id, carga, repeticoes)}
+                />
+              </View>
+            ))}
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
     </SafeAreaView>
   );

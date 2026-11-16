@@ -35,7 +35,7 @@ export function CampoTexto({ rotulo, erro, dica, senha = false, icone, ref, ...r
         <TextInput
           ref={ref}
           {...resto}
-          style={estilos.input}
+          style={[estilos.input, resto.multiline && estilos.multilinha]}
           placeholderTextColor={cores.textoDesabilitado}
           selectionColor={cores.primaria}
           secureTextEntry={senha && !visivel}
@@ -93,6 +93,7 @@ const estilos = StyleSheet.create({
   focado: { borderColor: cores.primaria },
   comErro: { borderColor: cores.erro },
   iconeInicio: { marginRight: espacamento.md },
+  multilinha: { minHeight: 96, textAlignVertical: 'top' },
   input: { flex: 1, ...tipografia.corpo, color: cores.texto, paddingVertical: espacamento.md },
   olho: { paddingLeft: espacamento.md },
   erro: { ...tipografia.legenda, color: cores.erro },
