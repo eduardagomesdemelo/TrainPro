@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Botao } from '../../src/components/Botao';
 import { Cabecalho } from '../../src/components/Cabecalho';
 import { CampoRef, CampoTexto } from '../../src/components/CampoTexto';
+import { useDialogo } from '../../src/components/dialogo/DialogoContexto';
 import {
   DESCRICAO_META_MAX,
   TITULO_META_MAX,
@@ -17,6 +18,7 @@ import { cores, espacamento } from '../../src/theme/tokens';
 
 export default function NovaMeta() {
   const router = useRouter();
+  const { avisar, mostrarErro } = useDialogo();
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [erroTitulo, setErroTitulo] = useState<string | null>(null);
@@ -39,11 +41,10 @@ export default function NovaMeta() {
     setSalvando(false);
 
     if (resultado.ok) {
-      Alert.alert('Meta cadastrada', 'Sua meta foi salva com sucesso!', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      avisar('Meta cadastrada com sucesso!');
+      router.back();
     } else {
-      Alert.alert('Erro', resultado.mensagem);
+      mostrarErro(resultado.mensagem);
     }
   }
 

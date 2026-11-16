@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -18,6 +17,7 @@ import { Botao } from '../../src/components/Botao';
 import { BotaoIcone } from '../../src/components/BotaoIcone';
 import { Cabecalho } from '../../src/components/Cabecalho';
 import { CampoTexto } from '../../src/components/CampoTexto';
+import { useDialogo } from '../../src/components/dialogo/DialogoContexto';
 import { SeletorExercicios } from '../../src/features/treinos/SeletorExercicios';
 import {
   MAX_SESSOES,
@@ -46,6 +46,7 @@ function proximoNomeDeSessao(sessoes: SessaoEmEdicao[]): string {
 
 export default function TreinoPersonalizado() {
   const router = useRouter();
+  const { avisar, mostrarErro } = useDialogo();
   const proximaChave = useRef(1);
 
   const [nome, setNome] = useState('');
@@ -57,7 +58,7 @@ export default function TreinoPersonalizado() {
 
   function adicionarSessao() {
     if (sessoes.length >= MAX_SESSOES) {
-      Alert.alert('Limite atingido', `Um treino pode ter até ${MAX_SESSOES} sessões.`);
+      mostrarErro(`Um treino pode ter até ${MAX_SESSOES} sessões.`, 'Limite atingido');
       return;
     }
     setSessoes([
@@ -105,11 +106,10 @@ export default function TreinoPersonalizado() {
     setSalvando(false);
 
     if (resultado.ok) {
-      Alert.alert('Treino criado', 'Seu treino foi criado com sucesso!', [
-        { text: 'OK', onPress: () => router.replace('/inicio') },
-      ]);
+      avisar('Treino criado com sucesso!');
+      router.replace('/inicio');
     } else {
-      Alert.alert('Erro', resultado.mensagem);
+      mostrarErro(resultado.mensagem);
     }
   }
 

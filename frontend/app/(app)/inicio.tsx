@@ -1,20 +1,23 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Avatar } from '../../src/components/Avatar';
 import { BotaoIcone } from '../../src/components/BotaoIcone';
+import { useDialogo } from '../../src/components/dialogo/DialogoContexto';
 import { EstadoMensagem } from '../../src/components/EstadoMensagem';
 import { sair } from '../../src/features/auth/servicoAutenticacao';
+import { Perfil, carregarPerfil } from '../../src/features/perfil/servicoPerfil';
 import { excluirTreino, listarTreinos } from '../../src/features/treinos/servicoTreinos';
 import { Treino } from '../../src/features/treinos/tipos';
-import { supabase } from '../../src/lib/supabase';
 import { cores, espacamento, raio, tipografia } from '../../src/theme/tokens';
 
 export default function Inicio() {
   const router = useRouter();
-  const [nome, setNome] = useState<string | null>(null);
+  const { confirmar, mostrarErro } = useDialogo();
+  const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [treinos, setTreinos] = useState<Treino[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -22,15 +25,11 @@ export default function Inicio() {
   const carregar = useCallback(async () => {
     setErro(null);
 
-    // A política RLS garante que só o perfil do próprio usuário é retornado.
-    const [resTreinos, resPerfil] = await Promise.all([
-      listarTreinos(),
-      supabase.from('perfis').select('nome').maybeSingle(),
-    ]);
+    const [resTreinos, resPerfil] = await Promise.all([listarTreinos(), carregarPerfil()]);
 
     if (resTreinos.ok) setTreinos(resTreinos.dados);
     else setErro(resTreinos.mensagem);
-    setNome(resPerfil.data?.nome ?? null);
+    if (resPerfil.ok) setPerfil(resPerfil.dados);
     setCarregando(false);
   }, []);
 
@@ -41,15 +40,14 @@ export default function Inicio() {
     }, [carregar]),
   );
 
-  function confirmarExclusao(treino: Treino) {
-    Alert.alert(
-      'Excluir treino',
-      `Deseja excluir "${treino.nome}"? As sessões, os exercícios e os registros dele também serão apagados.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Excluir', style: 'destructive', onPress: () => excluir(treino) },
-      ],
-    );
+  async function confirmarExclusao(treino: Treino) {
+    const confirmou = await confirmar({
+      titulo: 'Excluir treino',
+      mensagem: `Deseja excluir "${treino.nome}"? As sessões, os exercícios e os registros dele também serão apagados.`,
+      textoConfirmar: 'Excluir',
+      perigoso: true,
+    });
+    if (confirmou) excluir(treino);
   }
 
   async function excluir(treino: Treino) {
@@ -57,7 +55,7 @@ export default function Inicio() {
     if (resultado.ok) {
       setTreinos((anteriores) => anteriores.filter((t) => t.id !== treino.id));
     } else {
-      Alert.alert('Erro', resultado.mensagem);
+      mostrarErro(resultado.mensagem);
     }
   }
 
@@ -69,10 +67,17 @@ export default function Inicio() {
   return (
     <SafeAreaView style={estilos.tela}>
       <View style={estilos.cabecalho}>
-        <View style={estilos.saudacao}>
-          <Text style={estilos.ola}>Olá{nome ? `, ${nome}` : ''}!</Text>
-          <Text style={estilos.subtitulo}>Seus programas de treino</Text>
-        </View>
+        <Pressable
+          onPress={() => router.push('/perfil')}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir meu perfil"
+          hitSlop={8}
+        >
+          <Avatar nome={perfil?.nome ?? ''} fotoUrl={perfil?.fotoUrl} tamanho={48} />
+        </Pressable>
+        <Text style={estilos.titulo} accessibilityRole="header">
+          Seus treinos
+        </Text>
         <BotaoIcone icone="log-out-outline" descricao="Sair da conta" aoPressionar={aoSair} />
       </View>
 
@@ -139,17 +144,24 @@ export default function Inicio() {
         </View>
         <View style={estilos.coluna}>
           <BotaoIcone
-            icone="add"
-            descricao="Novo treino"
-            variante="destaque"
-            aoPressionar={() => router.push('/novo-treino')}
+            icone="locate-outline"
+            descricao="Minhas metas"
+            aoPressionar={() => router.push('/metas')}
           />
         </View>
         <View style={estilos.coluna}>
           <BotaoIcone
-            icone="locate-outline"
-            descricao="Minhas metas"
-            aoPressionar={() => router.push('/metas')}
+            icone="play-circle-outline"
+            descricao="Vídeos de exercícios"
+            aoPressionar={() => router.push('/videos')}
+          />
+        </View>
+        <View style={estilos.coluna}>
+          <BotaoIcone
+            icone="add"
+            descricao="Novo treino"
+            variante="destaque"
+            aoPressionar={() => router.push('/novo-treino')}
           />
         </View>
       </View>
@@ -166,9 +178,7 @@ const estilos = StyleSheet.create({
     paddingHorizontal: espacamento.xl,
     paddingVertical: espacamento.lg,
   },
-  saudacao: { flex: 1, gap: espacamento.xs },
-  ola: { ...tipografia.titulo, color: cores.texto },
-  subtitulo: { ...tipografia.corpo, color: cores.textoSecundario },
+  titulo: { ...tipografia.titulo, color: cores.texto, flex: 1, marginLeft: espacamento.lg },
   centro: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   lista: {
     padding: espacamento.xl,

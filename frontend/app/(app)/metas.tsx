@@ -1,10 +1,11 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, SectionList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoIcone } from '../../src/components/BotaoIcone';
 import { Cabecalho } from '../../src/components/Cabecalho';
+import { useDialogo } from '../../src/components/dialogo/DialogoContexto';
 import { EstadoMensagem } from '../../src/components/EstadoMensagem';
 import { ItemMeta } from '../../src/features/metas/ItemMeta';
 import {
@@ -17,6 +18,7 @@ import { cores, espacamento, tipografia } from '../../src/theme/tokens';
 
 export default function Metas() {
   const router = useRouter();
+  const { confirmar, mostrarErro } = useDialogo();
   const [metas, setMetas] = useState<Meta[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export default function Metas() {
     const resultado = await alterarConclusao(meta.id, concluir);
 
     if (!resultado.ok) {
-      Alert.alert('Erro', resultado.mensagem);
+      mostrarErro(resultado.mensagem);
       return;
     }
     setMetas((anteriores) =>
@@ -52,11 +54,14 @@ export default function Metas() {
     if (concluir) setConcluindoId(meta.id);
   }
 
-  function confirmarExclusao(meta: Meta) {
-    Alert.alert('Excluir meta', `Deseja excluir "${meta.titulo}"?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: () => excluir(meta) },
-    ]);
+  async function confirmarExclusao(meta: Meta) {
+    const confirmou = await confirmar({
+      titulo: 'Excluir meta',
+      mensagem: `Deseja excluir "${meta.titulo}"?`,
+      textoConfirmar: 'Excluir',
+      perigoso: true,
+    });
+    if (confirmou) excluir(meta);
   }
 
   async function excluir(meta: Meta) {
@@ -64,7 +69,7 @@ export default function Metas() {
     if (resultado.ok) {
       setMetas((anteriores) => anteriores.filter((m) => m.id !== meta.id));
     } else {
-      Alert.alert('Erro', resultado.mensagem);
+      mostrarErro(resultado.mensagem);
     }
   }
 

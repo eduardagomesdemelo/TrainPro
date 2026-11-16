@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Botao } from '../../src/components/Botao';
 import { Cabecalho } from '../../src/components/Cabecalho';
+import { useDialogo } from '../../src/components/dialogo/DialogoContexto';
 import { criarTreinoPredefinido } from '../../src/features/treinos/servicoTreinos';
 import {
   TreinoPredefinido,
@@ -15,6 +16,7 @@ import { cores, espacamento, raio, tipografia } from '../../src/theme/tokens';
 
 export default function TreinosPredefinidos() {
   const router = useRouter();
+  const { avisar, mostrarErro } = useDialogo();
   const [selecionado, setSelecionado] = useState<TreinoPredefinido | null>(null);
   const [salvando, setSalvando] = useState(false);
 
@@ -26,11 +28,10 @@ export default function TreinosPredefinidos() {
     setSalvando(false);
 
     if (resultado.ok) {
-      Alert.alert('Treino criado', 'Seu treino foi criado com sucesso!', [
-        { text: 'OK', onPress: () => router.replace('/inicio') },
-      ]);
+      avisar('Treino criado com sucesso!');
+      router.replace('/inicio');
     } else {
-      Alert.alert('Erro', resultado.mensagem);
+      mostrarErro(resultado.mensagem);
     }
   }
 

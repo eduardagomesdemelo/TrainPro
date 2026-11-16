@@ -1,15 +1,18 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { cores, espacamento, tipografia } from '../theme/tokens';
 import { BotaoSocial } from './BotaoSocial';
+import { useDialogo } from './dialogo/DialogoContexto';
 
 type Props = {
   acao: 'Cadastrar' | 'Entrar';
 };
 
 export function OpcoesSociais({ acao }: Props) {
+  const { avisar } = useDialogo();
+
   function avisarEmBreve(forma: string) {
-    Alert.alert('Em breve', `O acesso com ${forma} estará disponível em breve.`);
+    avisar(`O acesso com ${forma} estará disponível em breve.`, 'info');
   }
 
   return (

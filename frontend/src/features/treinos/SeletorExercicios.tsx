@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Botao } from '../../components/Botao';
 import { BotaoIcone } from '../../components/BotaoIcone';
 import { CampoTexto } from '../../components/CampoTexto';
+import { useDialogo } from '../../components/dialogo/DialogoContexto';
 import { alvoToqueMinimo, cores, espacamento, raio, tipografia } from '../../theme/tokens';
 import {
   ExercicioCatalogo,
@@ -26,6 +27,7 @@ type Props = {
 
 // Escolha de exercícios por grupo muscular, com opção de criar um exercício próprio.
 export function SeletorExercicios({ visivel, selecionados, aoConfirmar, aoFechar }: Props) {
+  const { mostrarErro } = useDialogo();
   const [marcados, setMarcados] = useState<string[]>(selecionados);
   const [grupoAtivo, setGrupoAtivo] = useState<GrupoMuscular>(GRUPOS_MUSCULARES[0]);
   // Exercícios criados pelo usuário ficam disponíveis enquanto o treino está sendo montado.
@@ -54,7 +56,7 @@ export function SeletorExercicios({ visivel, selecionados, aoConfirmar, aoFechar
     if (marcados.includes(nome)) {
       setMarcados(marcados.filter((n) => n !== nome));
     } else if (marcados.length >= MAX_EXERCICIOS_POR_SESSAO) {
-      Alert.alert('Limite atingido', `Cada sessão pode ter até ${MAX_EXERCICIOS_POR_SESSAO} exercícios.`);
+      mostrarErro(`Cada sessão pode ter até ${MAX_EXERCICIOS_POR_SESSAO} exercícios.`, 'Limite atingido');
     } else {
       setMarcados([...marcados, nome]);
     }

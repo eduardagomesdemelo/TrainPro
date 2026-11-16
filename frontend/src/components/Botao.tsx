@@ -7,7 +7,7 @@ import { alvoToqueMinimo, cores, raio, tipografia } from '../theme/tokens';
 type Props = {
   titulo: string;
   aoPressionar: () => void;
-  variante?: 'primario' | 'secundario' | 'texto';
+  variante?: 'primario' | 'secundario' | 'texto' | 'perigo';
   carregando?: boolean;
   desabilitado?: boolean;
   icone?: ComponentProps<typeof Ionicons>['name'];
@@ -25,7 +25,8 @@ export function Botao({
   apenasIcone = false,
 }: Props) {
   const inativo = desabilitado || carregando;
-  const corTexto = variante === 'primario' ? cores.sobrePrimaria : cores.primaria;
+  const preenchido = variante === 'primario' || variante === 'perigo';
+  const corTexto = preenchido ? cores.sobrePrimaria : cores.primaria;
 
   return (
     <Pressable
@@ -65,6 +66,7 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   primario: { backgroundColor: cores.primaria },
+  perigo: { backgroundColor: cores.erro },
   secundario: { borderWidth: 1.5, borderColor: cores.primaria },
   texto: {},
   rotulo: { ...tipografia.corpo, fontWeight: '700' },

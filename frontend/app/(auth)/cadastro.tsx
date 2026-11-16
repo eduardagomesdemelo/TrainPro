@@ -1,9 +1,10 @@
 import { Link, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Botao } from '../../src/components/Botao';
 import { CampoRef, CampoTexto } from '../../src/components/CampoTexto';
+import { useDialogo } from '../../src/components/dialogo/DialogoContexto';
 import { OpcoesSociais } from '../../src/components/OpcoesSociais';
 import { Logo } from '../../src/components/Logo';
 import { TelaAuth } from '../../src/components/TelaAuth';
@@ -20,6 +21,7 @@ type Erros = Partial<Record<'nome' | 'email' | 'senha' | 'confirmacao', string |
 
 export default function Cadastro() {
   const router = useRouter();
+  const { informar } = useDialogo();
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -58,11 +60,12 @@ export default function Cadastro() {
         router.replace({ pathname: '/verifique-email', params: { email: email.trim() } });
         break;
       case 'conta_existente':
-        Alert.alert(
+        await informar(
           'Conta já cadastrada',
           'Já existe uma conta com este e-mail. Entre para continuar.',
-          [{ text: 'Ir para o login', onPress: () => router.replace('/entrar') }],
+          'Ir para o login',
         );
+        router.replace('/entrar');
         break;
       case 'erro':
         setErroGeral(resultado.mensagem);
